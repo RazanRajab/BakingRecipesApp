@@ -7,6 +7,6 @@ import retrofit2.http.GET;
 
 public interface recipeService {
 
-    @GET("59121517_baking/baking.json")
+    @GET("baking.json")
     Call<List<Recipe>> getRecipes();
 }

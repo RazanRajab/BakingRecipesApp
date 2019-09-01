@@ -7,13 +7,13 @@ import java.util.List;
 public class Ingredient {
 
     @SerializedName("quantity")
-    int quantity;
+    double quantity;
     @SerializedName("measure")
     String measure;
     @SerializedName("ingredient")
     String ingredient;
 
-    public int getQuantity() {
+    public double getQuantity() {
         return quantity;
     }
 
