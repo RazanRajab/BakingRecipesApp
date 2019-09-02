@@ -49,8 +49,16 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 RecyclerView.ViewHolder viewHolder = (RecyclerView.ViewHolder) view.getTag();
                 int position = viewHolder.getAdapterPosition();
-                Intent n = new Intent(getApplicationContext(), MainActivity.class);
+
+                boolean tablet = getResources().getBoolean(R.bool.isTablet);
                 Gson gson = new Gson();
+                Intent n;
+
+                if (tablet) {
+                    n = new Intent(getApplicationContext(), SelectAndViewStepDetailsActivity.class);
+                } else {
+                    n = new Intent(getApplicationContext(), SelectStepActivity.class);
+                }
                 n.putExtra(Recipe.class.getName(), gson.toJson(recipes.get(position)));
                 startActivity(n);
             }
@@ -73,7 +81,6 @@ public class MainActivity extends AppCompatActivity {
             public void onResponse(Call<List<Recipe>> call, Response<List<Recipe>> response) {
                 List<Recipe> r = response.body();
 
-                Log.d("Log",r.get(0).getName());
                 for (int i = 0; i < r.size(); i++) {
                     recipes.add(new Recipe(r.get(i).getId(), r.get(i).getName(),
                             r.get(i).getIngredients(), r.get(i).getSteps(),

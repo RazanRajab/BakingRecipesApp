@@ -21,13 +21,15 @@
             android:layout_height="wrap_content"
             android:textSize="18dp"
             android:textStyle="bold"
+            android:textColor="@color/colorAccent"
             android:layout_marginBottom="5dp"/>
 
         <TextView
             android:id="@+id/serving"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="16dp"
+            android:textSize="18dp"
+            android:textColor="@color/colorAccent"
             android:drawableLeft="@drawable/ic_people"
             android:layout_marginBottom="5dp"/>
 
