@@ -61,7 +61,6 @@ public class SelectStepFragment extends Fragment {
         ingredients = (ArrayList<Ingredient>) r.getIngredients();
         steps = (ArrayList<Step>) r.getSteps();
 
-        Log.d("Log",ingredients.size()+"");
         ingredientsRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         ingredientsAdapter = new IngredientsAdapter(ingredients);
         ingredientsRecyclerView.setAdapter(ingredientsAdapter);
@@ -76,7 +75,8 @@ public class SelectStepFragment extends Fragment {
                 Gson gson = new Gson();
                 Intent n;
                 n = new Intent(getContext(), StepDetailsActivity.class);
-                n.putExtra(Step.class.getName(), gson.toJson(steps.get(position)));
+                n.putExtra(Recipe.class.getName(), gson.toJson(r));
+                n.putExtra("position",position);
                 startActivity(n);
             }
         });
