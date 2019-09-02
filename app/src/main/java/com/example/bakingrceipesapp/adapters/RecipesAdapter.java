@@ -27,8 +27,9 @@ public class RecipesAdapter extends
 
         @BindView(R.id.image) ImageView imageView;
         @BindView(R.id.name) TextView name;
+        @BindView(R.id.serving) TextView serving;
 
-        private ViewHolder(View itemView) {
+         private ViewHolder(View itemView) {
             super(itemView);
             itemView.setTag(this);
             itemView.setOnClickListener(onRecipeClickListener);
@@ -66,6 +67,7 @@ public class RecipesAdapter extends
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Recipe r = recipes.get(position);
         holder.name.setText(r.getName());
+        holder.serving.setText(" "+r.getServings()+" sreving");
         if(!r.getImage().equals("")) {
             Picasso.with(context)
                     .load(r.getImage())
