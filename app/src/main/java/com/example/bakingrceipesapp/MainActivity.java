@@ -1,11 +1,13 @@
 package com.example.bakingrceipesapp;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
@@ -50,7 +52,12 @@ public class MainActivity extends AppCompatActivity {
                 RecyclerView.ViewHolder viewHolder = (RecyclerView.ViewHolder) view.getTag();
                 int position = viewHolder.getAdapterPosition();
 
-                boolean tablet = getResources().getBoolean(R.bool.isTablet);
+                boolean tablet;
+                if(findViewById(R.id.linear_layout) != null) {
+                    tablet = true;
+                }else{
+                    tablet = false;
+                }
                 Gson gson = new Gson();
                 Intent n;
 
@@ -95,4 +102,10 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState, @NonNull PersistableBundle outPersistentState) {
+        outState.putParcelableArrayList("recipes", recipes);
+        super.onSaveInstanceState(outState, outPersistentState);
+    }
+
 }

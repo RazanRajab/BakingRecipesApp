@@ -1,10 +1,13 @@
 package com.example.bakingrceipesapp.recipeAPI;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
 
-public class Recipe {
+public class Recipe implements Parcelable {
 
     @SerializedName("id")
     int id;
@@ -29,6 +32,27 @@ public class Recipe {
         this.image = image;
     }
 
+    protected Recipe(Parcel in) {
+        id = in.readInt();
+        name = in.readString();
+        in.readTypedList(ingredients,Ingredient.CREATOR);
+        in.readTypedList(steps,Step.CREATOR);
+        servings = in.readInt();
+        image = in.readString();
+    }
+
+    public static final Creator<Recipe> CREATOR = new Creator<Recipe>() {
+        @Override
+        public Recipe createFromParcel(Parcel in) {
+            return new Recipe(in);
+        }
+
+        @Override
+        public Recipe[] newArray(int size) {
+            return new Recipe[size];
+        }
+    };
+
     public int getId() {
         return id;
     }
@@ -51,5 +75,20 @@ public class Recipe {
 
     public String getImage() {
         return image;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeInt(id);
+        parcel.writeString(name);
+        parcel.writeTypedList(ingredients);
+        parcel.writeTypedList(steps);
+        parcel.writeInt(servings);
+        parcel.writeString(image);
     }
 }

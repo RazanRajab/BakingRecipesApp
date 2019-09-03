@@ -146,4 +146,11 @@ public class StepDetailsFragment extends Fragment {
         super.onDestroy();
         releasePlayer();
     }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        outState.putParcelable("recipe", r);
+        outState.putInt("stepId",stepID);
+        super.onSaveInstanceState(outState);
+    }
 }
