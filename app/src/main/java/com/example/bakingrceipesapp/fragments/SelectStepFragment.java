@@ -1,5 +1,6 @@
 package com.example.bakingrceipesapp.fragments;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -41,6 +42,23 @@ public class SelectStepFragment extends Fragment {
     private ArrayList<Step> steps = new ArrayList<>();
     private ArrayList<Ingredient> ingredients = new ArrayList<>();
     private Recipe r;
+    OnStepClickListener mCallback;
+
+    public interface OnStepClickListener {
+        void onStepSelected(int position);
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+
+        try {
+            mCallback = (OnStepClickListener) context;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(context.toString()
+                    + " must implement OnStepClickListener");
+        }
+    }
 
     public SelectStepFragment(){
 
@@ -72,12 +90,7 @@ public class SelectStepFragment extends Fragment {
             public void onClick(View view) {
                 RecyclerView.ViewHolder viewHolder = (RecyclerView.ViewHolder) view.getTag();
                 int position = viewHolder.getAdapterPosition();
-                Gson gson = new Gson();
-                Intent n;
-                n = new Intent(getContext(), StepDetailsActivity.class);
-                n.putExtra(Recipe.class.getName(), gson.toJson(r));
-                n.putExtra("position",position);
-                startActivity(n);
+                mCallback.onStepSelected(position);
             }
         });
 
