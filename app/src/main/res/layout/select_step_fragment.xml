@@ -4,13 +4,15 @@
     android:layout_height="match_parent">
 
     <TextView
+        android:id="@+id/ingredients_add_widget"
         android:layout_width="fill_parent"
         android:layout_height="50dp"
         android:gravity="center"
-        android:text="Ingredients List"
+        android:text="Ingredients List(press to add recipe to widget)"
         android:textStyle="bold"
         android:textSize="18dp"
         android:textColor="@color/white"
+        android:clickable="true"
         android:background="@color/colorAccent"/>
 
     <androidx.recyclerview.widget.RecyclerView

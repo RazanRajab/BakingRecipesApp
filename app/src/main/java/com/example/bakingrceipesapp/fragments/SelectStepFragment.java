@@ -1,25 +1,25 @@
 package com.example.bakingrceipesapp.fragments;
 
+import android.appwidget.AppWidgetManager;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.bakingrceipesapp.MainActivity;
+import com.example.bakingrceipesapp.widget.IngredientsWidgetProvider;
 import com.example.bakingrceipesapp.R;
-import com.example.bakingrceipesapp.StepDetailsActivity;
 import com.example.bakingrceipesapp.adapters.IngredientsAdapter;
-import com.example.bakingrceipesapp.adapters.RecipesAdapter;
 import com.example.bakingrceipesapp.adapters.StepsAdapter;
 import com.example.bakingrceipesapp.recipeAPI.Ingredient;
 import com.example.bakingrceipesapp.recipeAPI.Recipe;
@@ -37,6 +37,8 @@ public class SelectStepFragment extends Fragment {
     androidx.recyclerview.widget.RecyclerView ingredientsRecyclerView;
     @BindView(R.id.steps_recycler_view)
     androidx.recyclerview.widget.RecyclerView stepsRecyclerView;
+    @BindView(R.id.ingredients_add_widget)
+    TextView addRecipeToWidget;
     private StepsAdapter stepsAdapter;
     private IngredientsAdapter ingredientsAdapter;
     private ArrayList<Step> steps = new ArrayList<>();
@@ -91,6 +93,18 @@ public class SelectStepFragment extends Fragment {
                 RecyclerView.ViewHolder viewHolder = (RecyclerView.ViewHolder) view.getTag();
                 int position = viewHolder.getAdapterPosition();
                 mCallback.onStepSelected(position);
+            }
+        });
+
+        addRecipeToWidget.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(getContext());
+                int[] appWidgetIds = appWidgetManager.getAppWidgetIds(
+                        new ComponentName(getContext(), IngredientsWidgetProvider.class));
+                IngredientsWidgetProvider.updateAppWidget(getContext(), appWidgetManager, appWidgetIds, r);
+                Toast.makeText(getContext(),"Added to Widget",Toast.LENGTH_LONG).show();
             }
         });
 
