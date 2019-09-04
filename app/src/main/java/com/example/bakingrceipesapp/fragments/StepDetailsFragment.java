@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -30,6 +31,7 @@ import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
 import com.google.gson.Gson;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
@@ -44,7 +46,9 @@ public class StepDetailsFragment extends Fragment {
     private int position;
     private ArrayList<Step> steps;
     private SimpleExoPlayer exoPlayer;
-    
+    private long playerPosition;
+    private boolean getPlayerWhenReady;
+
     @BindView(R.id.description)
     TextView description;
     @BindView(R.id.previous)
@@ -53,26 +57,28 @@ public class StepDetailsFragment extends Fragment {
     Button next;
     @BindView(R.id.mExoPlayer)
     SimpleExoPlayerView exoPlayerView;
+    @BindView(R.id.thumbnail)
+    ImageView thumbnail;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.step_details_fragment,container,false);
+        View rootView = inflater.inflate(R.layout.step_details_fragment, container, false);
         ButterKnife.bind(this, rootView);
 
         String Extra = getActivity().getIntent().getStringExtra(Recipe.class.getName());
         Gson gson = new Gson();
         r = gson.fromJson(Extra, Recipe.class);
         steps = (ArrayList<Step>) r.getSteps();
-        stepID = getActivity().getIntent().getIntExtra("position",position);
-        Log.d("Log",position+"");
+        stepID = getActivity().getIntent().getIntExtra("position", position);
+        Log.d("Log", position + "");
         s = steps.get(stepID);
         getActivity().setTitle(r.getName());
 
         previous.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(stepID-1>=0) {
+                if (stepID - 1 >= 0) {
                     s = steps.get(--stepID);
                     description.setText(s.getDescription());
                     prepareMedia(s);
@@ -83,7 +89,7 @@ public class StepDetailsFragment extends Fragment {
         next.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(stepID+1<steps.size()){
+                if (stepID + 1 < steps.size()) {
                     s = steps.get(++stepID);
                     description.setText(s.getDescription());
                     prepareMedia(s);
@@ -92,12 +98,10 @@ public class StepDetailsFragment extends Fragment {
         });
 
         description.setText(s.getDescription());
-        initializePlayer();
-        prepareMedia(s);
 
         return rootView;
     }
-    
+
     private void initializePlayer() {
 
         if (exoPlayer == null) {
@@ -109,48 +113,85 @@ public class StepDetailsFragment extends Fragment {
         }
     }
 
-    private void prepareMedia(Step s){
+    private void prepareMedia(Step s) {
         Uri mediaUri = null;
-        if(!s.getVideoURL().equals("")) { 
+        if (!s.getVideoURL().equals("")) {
+            exoPlayerView.setVisibility(View.VISIBLE);
+            thumbnail.setVisibility(View.INVISIBLE);
             mediaUri = Uri.parse(s.getVideoURL());
-        }
-        else if(!s.getThumbnailURL().equals("")){
-            mediaUri = Uri.parse(s.getThumbnailURL());
-        }
-        else {
+            String userAgent = Util.getUserAgent(getContext(), getString(R.string.app_name));
+            MediaSource mediaSource = new ExtractorMediaSource(mediaUri,
+                    new DefaultDataSourceFactory(getContext(), userAgent),
+                    new DefaultExtractorsFactory(), null, null);
+            exoPlayer.prepare(mediaSource);
+            exoPlayer.setPlayWhenReady(true);
+        } else if (!s.getThumbnailURL().equals("")) {
+            exoPlayerView.setVisibility(View.INVISIBLE);
+            thumbnail.setVisibility(View.VISIBLE);
+            Picasso.with(getContext())
+                    .load(s.getThumbnailURL())
+                    .placeholder(R.drawable.ic_cake).error(R.drawable.ic_broken_image)
+                    .into(thumbnail);
+        } else {
             releasePlayer();
             initializePlayer();
             exoPlayerView.setDefaultArtwork(BitmapFactory.
-                    decodeResource(getResources(),R.drawable.ic_no_video));
+                    decodeResource(getResources(), R.drawable.ic_no_video));
         }
-        String userAgent = Util.getUserAgent(getContext(), getString(R.string.app_name));
-        MediaSource mediaSource = new ExtractorMediaSource(mediaUri,
-                new DefaultDataSourceFactory(getContext(), userAgent),
-                new DefaultExtractorsFactory(), null, null);
-        exoPlayer.prepare(mediaSource);
-        exoPlayer.setPlayWhenReady(true);
     }
 
-    private void releasePlayer(){
+    private void releasePlayer() {
         exoPlayer.stop();
         exoPlayer.release();
         exoPlayer = null;
     }
 
-    public void setStepID(int position){
+    public void setStepID(int position) {
         this.position = position;
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
-        releasePlayer();
+    public void onStart() {
+        super.onStart();
+        if (Util.SDK_INT > 23) {
+            initializePlayer();
+            prepareMedia(s);
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if ((Util.SDK_INT <= 23 || exoPlayer == null)) {
+            initializePlayer();
+            prepareMedia(s);
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (Util.SDK_INT <= 23) {
+            releasePlayer();
+        }
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (Util.SDK_INT > 23) {
+            releasePlayer();
+        }
     }
 
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         outState.putParcelable("recipe", r);
-        outState.putInt("stepId",stepID);
+        outState.putInt("stepId", stepID);
+        playerPosition = exoPlayer.getCurrentPosition();
+        outState.putLong("player_position", playerPosition);
+        getPlayerWhenReady = exoPlayer.getPlayWhenReady();
+        outState.putBoolean("state", getPlayerWhenReady);
         super.onSaveInstanceState(outState);
     }
 }
