@@ -52,12 +52,8 @@ public class MainActivity extends AppCompatActivity {
                 RecyclerView.ViewHolder viewHolder = (RecyclerView.ViewHolder) view.getTag();
                 int position = viewHolder.getAdapterPosition();
 
-                boolean tablet;
-                if(findViewById(R.id.linear_layout) != null) {
-                    tablet = true;
-                }else{
-                    tablet = false;
-                }
+                boolean tablet = getResources().getBoolean(R.bool.isTablet);
+
                 Gson gson = new Gson();
                 Intent n;
 
